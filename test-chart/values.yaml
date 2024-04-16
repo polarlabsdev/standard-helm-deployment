@@ -1,0 +1,19 @@
+namespace: hello-world
+appName: hello-world
+replicas: 1
+imageLocation: hashicorp/http-echo
+containerArgs:
+  - -text=echo1
+containerPorts:
+  - name: web-ui
+    port: 80
+    targetPort: 5678
+envVars:
+  TEST: test
+clusterIssuerName: letsencrypt-staging
+domainName: test.polarlabs.ca
+tlsSecretName: hello-world-tls
+ingressPaths:
+  - path: /
+    type: Prefix
+    servicePort: 80

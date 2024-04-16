@@ -1,0 +1,41 @@
+{{- define "pl-standard-chart.deployment" }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.namespace }}-{{ .Values.appName }}-deployment
+  namespace: {{ .Values.namespace }} 
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.namespace }}-{{ .Values.appName }}-template
+  replicas: {{ default 1 .Values.replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.namespace }}-{{ .Values.appName }}-template
+    spec:
+      restartPolicy: {{ default "Always" .Values.restartPolicy }}
+      containers:
+        - name: {{ .Values.namespace }}-{{ .Values.appName }}-container
+          image: {{ .Values.imageLocation }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}
+          args:          
+            {{- range $arg := .Values.containerArgs }}
+            - {{ $arg | quote }}
+            {{- end }}
+          ports:          
+            {{- range $port := .Values.containerPorts }}
+            - name: {{ $port.name }}
+              containerPort: {{ $port.targetPort }}
+              {{ if $port.protocol }}
+              protocol: {{ $port.protocol }}
+              {{ end }}
+            {{- end }}   
+          env:
+            {{- range $key, $val := .Values.envVars }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+
+{{- end }}

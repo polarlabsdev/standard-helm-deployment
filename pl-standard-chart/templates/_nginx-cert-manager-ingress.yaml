@@ -1,0 +1,30 @@
+{{- define "pl-standard-chart.nginx-cert-manager-ingress" }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.namespace }}-{{ .Values.appName }}-ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuerName }}
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - {{ .Values.domainName }}
+    secretName: {{ .Values.tlsSecretName }}
+  rules:
+  - host: {{ .Values.domainName }}
+    http:
+      paths:
+        {{- range $path := .Values.ingressPaths }}
+        - path: {{ $path.path }}
+          pathType: {{ $path.type }}
+          backend:
+            service:
+              name: {{ $.Values.namespace }}-{{ $.Values.appName }}-service # this matches pl-standard-chart/templates/_service.yaml
+              port:
+                number: {{ $path.servicePort }}
+        {{- end }}
+
+{{- end }}

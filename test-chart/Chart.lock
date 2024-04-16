@@ -1,0 +1,6 @@
+dependencies:
+- name: pl-standard-chart
+  repository: file://../pl-standard-chart
+  version: 0.1.0
+digest: sha256:63c654f078c95cc458fc5dd922079f26c24d89f2f823f1b08d844d8c8d6fd7a2
+generated: "2024-04-16T13:24:15.880408685-04:00"
