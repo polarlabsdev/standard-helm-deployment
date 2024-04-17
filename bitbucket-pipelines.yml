@@ -11,4 +11,4 @@ pipelines:
                 name: Build and deploy helm chart
                 script:
                   - apk add curl
-                  - /bin/deploy-chart-lib
+                  - bin/deploy-chart-lib
