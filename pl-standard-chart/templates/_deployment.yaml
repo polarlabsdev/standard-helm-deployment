@@ -32,6 +32,11 @@ spec:
               protocol: {{ $port.protocol }}
               {{ end }}
             {{- end }}   
+          envFrom:
+            {{- range $secret := .Values.secrets }}
+            - secretRef:
+                name: {{ $secret.name }}
+            {{- end }}
           env:
             {{- range $key, $val := .Values.envVars }}
             - name: {{ $key }}

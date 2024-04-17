@@ -1,0 +1,30 @@
+namespace: chartmuseum
+appName: chartmuseum
+replicas: 1
+imageLocation: ghcr.io/helm/chartmuseum:v0.16.1
+containerPorts:
+  - name: web-ui
+    port: 8080
+    targetPort: 8080
+envVars:
+  DEBUG: 1
+  LOG_JSON: 1
+  DISABLE_API: 0
+  STORAGE: amazon
+  STORAGE_AMAZON_BUCKET: polarlabs
+  STORAGE_AMAZON_PREFIX: chartmuseum
+  STORAGE_AMAZON_REGION: us-east-1
+  STORAGE_AMAZON_ENDPOINT: https://nyc3.digitaloceanspaces.com
+secrets:
+  - name: do-creds
+    type: Opaque
+    data:
+      AWS_ACCESS_KEY_ID: 
+      AWS_SECRET_ACCESS_KEY: 
+clusterIssuerName: letsencrypt-production
+domainName: helm.polarlabs.ca
+tlsSecretName: chartmuseum-tls
+ingressPaths:
+  - path: /
+    type: Prefix
+    servicePort: 8080

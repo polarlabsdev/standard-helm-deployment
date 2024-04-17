@@ -20,15 +20,15 @@ helm install nginx-ingress ingress-nginx/ingress-nginx \
 
 Obviously you need to switch the domain to what works for you.
 
-Next up is cert manager. Again, read the entire section but we recommend installing from [the official cert-manager docs](https://cert-manager.io/docs/installation/helm/). The rest of the installation is valid in the first DO article, and we have copies of the templates you'll need under the `cert-manager/` folder in this repo. Just swap the values to match what you need them to be and follow the instructions from the article.
+Next up is cert manager. Again, read the entire section but we recommend installing from [the official cert-manager docs](https://cert-manager.io/docs/installation/helm/). The rest of the installation is valid in the first DO article, and we have copies of the templates you'll need under the `_support-templates/cert-manager/` folder in this repo. Just swap the values to match what you need them to be and follow the instructions from the article.
 
-Lastly, follow [this article](https://www.digitalocean.com/community/tutorials/how-to-automatically-manage-dns-records-from-digitalocean-kubernetes-using-externaldns) in order to install externaldns into your cluster. This part is very easy. We have included a copy of the values.yaml you'll need to go with the article, but you'll have to use your own DO API token.
+Lastly, follow [this article](https://www.digitalocean.com/community/tutorials/how-to-automatically-manage-dns-records-from-digitalocean-kubernetes-using-externaldns) in order to install externaldns into your cluster. This part is very easy. We have included a copy of the values.yaml in `_support-templates/external-dns/` that you'll need to go with the article, but you'll have to use your own DO API token.
 
 ## Handy plugins we recommend
 
-https://krew.sigs.k8s.io/docs/user-guide/setup/install/
-https://github.com/corneliusweig/ketall
-https://pod-lens.guoxudong.io/
+- https://krew.sigs.k8s.io/docs/user-guide/setup/install/
+- https://github.com/corneliusweig/ketall
+- https://pod-lens.guoxudong.io/
 
 # Using the pl-standard-chart
 
@@ -48,17 +48,21 @@ appVersion: "0.1.0"
 
 dependencies:
   - name: pl-standard-chart
-    version: 0.1.0
-    repository: TBD # this needs to be replaced once I figure this part out
+    version: 1.0.0
+    repository: https://helm.polarlabs.ca
 
 ```
 
-Then run `helm dependency update your-chart` and it will install a copy of the chart into the `charts/` folder of your chart (I know chart is getting redundant but I didn't design this). We recommend git-ignoring this folder unless you have your own charts in there, then maybe just gitignore the pl chart.
+Then run `helm dependency update ./your-chart` and it will install a copy of the chart into the `charts/` folder of your chart (I know chart is getting redundant but I didn't design this). We recommend git-ignoring this folder unless you have your own charts in there, then maybe just gitignore the pl chart.
 
 From there as you can see in the test repo you can make a single file (named anything you want) in your `templates/` directory that pulls in the 4 main files:
 
 ```
 {{- include "pl-standard-chart.namespace" . }}
+
+---
+
+{{- include "pl-standard-chart.secrets" . }}
 
 ---
 
@@ -90,6 +94,11 @@ containerPorts:
     targetPort: 5678
 envVars:
   TEST: test
+secrets:
+  - name: do-creds
+    type: Opaque
+    data:
+      TEST: test
 clusterIssuerName: letsencrypt-staging
 domainName: test.polarlabs.ca
 tlsSecretName: hello-world-tls
@@ -106,3 +115,13 @@ The following items are optional and have defaults:
 - imagePullPolicy
 
 You can test it with `helm install your-chart ./path/to/chart/folder --dry-run` and make sure it looks like what you expect. Then remove `--dry-run` to actually install it.
+
+**NOTE: It is good practise to use the staging issuer until you're ready to deploy it for sure because there is a rate limit on the production issuer** 
+
+# How the pipeline works
+
+We are using [Chartmuseum](https://github.com/helm/chartmuseum) to host our charts which we deploying using pl-standard-deployment charts into our own kube cluster. The repo is located currently at https://helm.polarlabs.ca. If you would like to host your own, we include the chart for Chartmuseum in this repo and you can deploy to your own cluster.
+
+This repo automates deployment of updates to the standard deployment charts with a simple script in a bitbucket pipeline. It simply packages the file and uploads to Chartmuseum via curl, and can be easily extended to update many charts to Chartmuseum.
+
+**TODO: Currently Chartmuseum is unauthenticated, which means technically anyone with the URL could start uploading charts to our repo, which is less than ideal. We should keep it open for download, but find a way to authenticate uploads, then update the pipeline accordingly. This is captured in [PL-132](https://polarlabs.atlassian.net/browse/PL-132)**

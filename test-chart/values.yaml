@@ -10,6 +10,11 @@ containerPorts:
     targetPort: 5678
 envVars:
   TEST: test
+secrets:
+  - name: do-creds
+    type: Opaque
+    data:
+      TEST: test
 clusterIssuerName: letsencrypt-staging
 domainName: test.polarlabs.ca
 tlsSecretName: hello-world-tls

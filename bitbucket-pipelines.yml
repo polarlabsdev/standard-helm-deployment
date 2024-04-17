@@ -1,0 +1,14 @@
+image: alpine/helm:3.14.2
+
+pipelines:
+  branches:
+    main:
+      - stage:
+          name: Deploy to Chartmuseum
+          deployment: production
+          steps:
+            - step:
+                name: Build and deploy helm chart
+                script:
+                  - apk add curl
+                  - /bin/deploy-chart-lib

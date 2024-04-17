@@ -1,0 +1,13 @@
+apiVersion: v2
+name: pl-chartmuseum
+description: A chart that uses our standard deployment chart to deploy an instance of ChartMuseum - an open source Helm Chart Repo.
+
+type: application
+
+version: 1.0.0
+appVersion: "0.16.1"
+
+dependencies:
+  - name: pl-standard-chart
+    version: 0.4.0
+    repository: https://helm.polarlabs.ca

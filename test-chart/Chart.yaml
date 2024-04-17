@@ -9,5 +9,5 @@ appVersion: "0.1.0"
 
 dependencies:
   - name: pl-standard-chart
-    version: 0.1.0
-    repository: file://../pl-standard-chart
+    version: 0.4.0
+    repository: https://helm.polarlabs.ca
