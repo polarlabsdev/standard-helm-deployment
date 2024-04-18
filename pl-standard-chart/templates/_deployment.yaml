@@ -3,21 +3,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.namespace }}-{{ .Values.appName }}-deployment
+  name: {{ .Values.appName }}-deployment
   namespace: {{ .Values.namespace }} 
 spec:
   selector:
     matchLabels:
-      app: {{ .Values.namespace }}-{{ .Values.appName }}-template
+      app: {{ .Values.appName }}-template
   replicas: {{ default 1 .Values.replicas }}
   template:
     metadata:
       labels:
-        app: {{ .Values.namespace }}-{{ .Values.appName }}-template
+        app: {{ .Values.appName }}-template
     spec:
       restartPolicy: {{ default "Always" .Values.restartPolicy }}
       containers:
-        - name: {{ .Values.namespace }}-{{ .Values.appName }}-container
+        - name: {{ .Values.appName }}-container
           image: {{ .Values.imageLocation }}
           imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}
           args:          

@@ -3,7 +3,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Values.namespace }}-{{ .Values.appName }}-ingress
+  name: {{ .Values.appName }}-ingress
   namespace: {{ .Values.namespace }}
   annotations:
     cert-manager.io/cluster-issuer: {{ .Values.clusterIssuerName }}
@@ -22,7 +22,7 @@ spec:
           pathType: {{ $path.type }}
           backend:
             service:
-              name: {{ $.Values.namespace }}-{{ $.Values.appName }}-service # this matches pl-standard-chart/templates/_service.yaml
+              name: {{ $.Values.appName }}-service # this matches pl-standard-chart/templates/_service.yaml
               port:
                 number: {{ $path.servicePort }}
         {{- end }}

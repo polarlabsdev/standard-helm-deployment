@@ -3,11 +3,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.namespace }}-{{ .Values.appName }}-service
+  name: {{ .Values.appName }}-service
   namespace: {{ .Values.namespace }}
 spec:
   selector:
-    app: {{ .Values.namespace }}-{{ .Values.appName }}-template
+    app: {{ .Values.appName }}-template
   ports:
     {{- range $port := .Values.containerPorts }}
     - name: {{ $port.name }}
