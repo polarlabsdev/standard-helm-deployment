@@ -2,6 +2,7 @@ namespace: hello-world
 appName: hello-world
 replicas: 1
 imageLocation: hashicorp/http-echo
+registrySecretName: polar-labs-registry
 containerArgs:
   - -text=echo1
 containerPorts:

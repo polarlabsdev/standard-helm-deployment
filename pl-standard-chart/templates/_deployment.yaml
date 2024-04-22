@@ -16,10 +16,14 @@ spec:
         app: {{ .Values.appName }}-template
     spec:
       restartPolicy: {{ default "Always" .Values.restartPolicy }}
+      {{ if .Values.registrySecretName }}
+      imagePullSecrets:
+        - name: {{ .Values.registrySecretName }}
+      {{ end }}
       containers:
         - name: {{ .Values.appName }}-container
           image: {{ .Values.imageLocation }}
-          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}          
           args:          
             {{- range $arg := .Values.containerArgs }}
             - {{ $arg | quote }}
