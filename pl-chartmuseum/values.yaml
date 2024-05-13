@@ -6,6 +6,10 @@ containerPorts:
   - name: web-ui
     port: 8080
     targetPort: 8080
+containerArgs:
+  - -basic-auth-user=<username>
+  - -basic-auth-pass=<password>
+  - -auth-anonymous-get
 envVars:
   DEBUG: 1
   LOG_JSON: 1
@@ -19,8 +23,8 @@ secrets:
   - name: do-creds
     type: Opaque
     data:
-      AWS_ACCESS_KEY_ID: 
-      AWS_SECRET_ACCESS_KEY: 
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
 clusterIssuerName: letsencrypt-production
 domainName: helm.polarlabs.ca
 tlsSecretName: chartmuseum-tls

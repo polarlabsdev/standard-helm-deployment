@@ -5,9 +5,18 @@ export HELM_PKG=$(helm package ./pl-standard-chart | grep -o '/[^ ]*')
 
 # hack to check for error in the response and fail CI/CD if found.
 # the curl command sends the file to chartmuseum which we get from the env
-# it pipes the output to tee, which usually outputs to stdout AND a file, but this is a hack to output then pipe instead of write a file
-# then it pipes to a shorthand conditional. If we see "error" in stdin, grep succeeds. If not it fails.
+# If we see "error" in stdin that isn't a "file already exists" error, grep succeeds. If not it fails.
 # We then look at that with && and ||.
 # && means that we DID find error in stdin, so we fail the pipeline with exit 1
 # || means that we DID NOT find error in stdin, so we pass the pipeline with exit 0
-curl --data-binary "@$HELM_PKG" $PL_CM_URL | tee /dev/stderr | grep -q error && exit 1 || exit 0
+export FILE_EXISTS="file already exists"
+export CURL_RESULT=$(curl --data-binary "@$HELM_PKG" $PL_CM_URL -u $CHARTMUSEUM_USERNAME:$CHARTMUSEUM_PASSWORD)
+echo "$CURL_RESULT"
+
+if [[ $CURL_RESULT == *$FILE_EXISTS* ]]; then
+  exit 0
+fi
+
+if [[ $CURL_RESULT == *"error"*  ]]; then
+  exit 1
+fi
