@@ -125,3 +125,8 @@ We are using [Chartmuseum](https://github.com/helm/chartmuseum) to host our char
 This repo automates deployment of updates to the standard deployment charts with a simple script in a bitbucket pipeline. It simply packages the file and uploads to Chartmuseum via curl, and can be easily extended to update many charts to Chartmuseum.
 
 **TODO: Currently Chartmuseum is unauthenticated, which means technically anyone with the URL could start uploading charts to our repo, which is less than ideal. We should keep it open for download, but find a way to authenticate uploads, then update the pipeline accordingly. This is captured in [PL-132](https://polarlabs.atlassian.net/browse/PL-132)**
+
+
+# NOTES #
+
+- If you use a persistent storage claim with Digital Ocean you can only have 1 replica because DO volumes only support ReadWriteOnce. You must also manually delete PVCs after their creation, they don't go down with the deployment. They should go down with`helm uninstall` though.

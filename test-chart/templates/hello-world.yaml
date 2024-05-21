@@ -6,6 +6,10 @@
 
 ---
 
+{{- include "pl-standard-chart.pv-claims" . }}
+
+---
+
 {{- include "pl-standard-chart.deployment" . }}
 
 ---

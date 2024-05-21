@@ -23,3 +23,7 @@ ingressPaths:
   - path: /
     type: Prefix
     servicePort: 80
+persistentVolumeClaims:
+  - name: test-pvc
+    storage: 5Gi
+    mountPath: /data

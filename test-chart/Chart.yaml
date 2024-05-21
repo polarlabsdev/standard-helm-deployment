@@ -9,5 +9,5 @@ appVersion: "0.1.0"
 
 dependencies:
   - name: pl-standard-chart
-    version: 1.0.2
+    version: 1.1.0
     repository: file://../pl-standard-chart

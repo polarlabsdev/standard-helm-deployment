@@ -1,0 +1,19 @@
+{{- define "pl-standard-chart.pv-claims" }}
+
+{{- range $volume := .Values.persistentVolumeClaims }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $.Values.appName }}-claim-{{ $volume.name }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  storageClassName: do-block-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $volume.storage }}
+---
+{{- end }}
+
+{{- end }}
