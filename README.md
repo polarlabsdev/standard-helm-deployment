@@ -24,6 +24,8 @@ Next up is cert manager. Again, read the entire section but we recommend install
 
 Lastly, follow [this article](https://www.digitalocean.com/community/tutorials/how-to-automatically-manage-dns-records-from-digitalocean-kubernetes-using-externaldns) in order to install externaldns into your cluster. This part is very easy. We have included a copy of the values.yaml in `_support-templates/external-dns/` that you'll need to go with the article, but you'll have to use your own DO API token.
 
+We have also added a couple hacks to make it so one can disable external-dns on specific ingresses by adding `disableExternalDNS: true` to your values.yaml file (see the example below). There is also a conflict between external-dns and cetr-manager where external-dns tries to create domains for ingresses created by cert-manager. To work around this, we only run external-dns on ingresses that include the cert-manager annotation - aka only ones we have edited ourselves. This does however mean, you must request a cert for an ingress to get external-dns support. This happens by default with our ingress file though.
+
 ## Handy plugins we recommend
 
 - https://krew.sigs.k8s.io/docs/user-guide/setup/install/
@@ -100,12 +102,23 @@ secrets:
     data:
       TEST: test
 clusterIssuerName: letsencrypt-staging
-domainName: test.polarlabs.ca
 tlsSecretName: hello-world-tls
-ingressPaths:
-  - path: /
-    type: Prefix
-    servicePort: 80
+# disableExternalDNS: true
+hosts:
+  - domainName: test.polarlabs.ca
+    ingressPaths:
+      - path: /
+        type: Prefix
+        servicePort: 80
+  - domainName: test2.polarlabs.ca
+    ingressPaths:
+      - path: /
+        type: Prefix
+        servicePort: 80
+# persistentVolumeClaims:
+#   - name: test-pvc
+#     storage: 5Gi
+#     mountPath: /data
 ```
 
 The following items are optional and have defaults:

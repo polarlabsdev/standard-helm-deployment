@@ -17,13 +17,20 @@ secrets:
     data:
       TEST: test
 clusterIssuerName: letsencrypt-staging
-domainName: test.polarlabs.ca
 tlsSecretName: hello-world-tls
-ingressPaths:
-  - path: /
-    type: Prefix
-    servicePort: 80
-persistentVolumeClaims:
-  - name: test-pvc
-    storage: 5Gi
-    mountPath: /data
+# disableExternalDNS: true
+hosts:
+  - domainName: test1111.polarlabs.ca
+    ingressPaths:
+      - path: /
+        type: Prefix
+        servicePort: 80
+  - domainName: test2222.polarlabs.ca
+    ingressPaths:
+      - path: /
+        type: Prefix
+        servicePort: 80
+# persistentVolumeClaims:
+#   - name: test-pvc
+#     storage: 5Gi
+#     mountPath: /data

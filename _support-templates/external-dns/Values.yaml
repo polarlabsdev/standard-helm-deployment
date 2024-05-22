@@ -1,10 +1,14 @@
 provider: digitalocean
 
 digitalocean:
-  apiToken: your_api_token
+  apiToken: token
 
 interval: "1m"
 
 policy: sync # or upsert-only
+logLevel: debug
+ingressClassFilters: 
+  - nginx
+annotationFilter: "cert-manager.io/cluster-issuer in (letsencrypt-staging,letsencrypt-production)"
 
 # domainFilters: [ 'your_domain' ]

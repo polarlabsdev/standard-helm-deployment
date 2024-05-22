@@ -7,17 +7,24 @@ metadata:
   namespace: {{ .Values.namespace }}
   annotations:
     cert-manager.io/cluster-issuer: {{ .Values.clusterIssuerName }}
+    {{ if .Values.disableExternalDNS }}
+    external-dns.alpha.kubernetes.io/ingress-hostname-source: annotation-only
+    external-dns.alpha.kubernetes.io/hostname: ""
+    {{ end }}    
 spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - {{ .Values.domainName }}
+    {{- range $host := .Values.hosts }}
+    - {{ $host.domainName }}
+    {{- end }}
     secretName: {{ .Values.tlsSecretName }}
   rules:
-  - host: {{ .Values.domainName }}
+  {{- range $host := .Values.hosts }}
+  - host: {{ $host.domainName }}
     http:
       paths:
-        {{- range $path := .Values.ingressPaths }}
+        {{- range $path := $host.ingressPaths }}
         - path: {{ $path.path }}
           pathType: {{ $path.type }}
           backend:
@@ -26,5 +33,6 @@ spec:
               port:
                 number: {{ $path.servicePort }}
         {{- end }}
+  {{- end }}
 
 {{- end }}
