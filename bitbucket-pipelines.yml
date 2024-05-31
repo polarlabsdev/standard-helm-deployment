@@ -15,6 +15,7 @@ pipelines:
             - step:
                 name: Mirror to GitHub
                 script:
+                  - apk add --update --no-cache openssh
                   # bitbucket options will fetch just the current branch, so it is required to fetch all:
                   - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
                   # fetch all branches:
