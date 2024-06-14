@@ -104,6 +104,7 @@ secrets:
 clusterIssuerName: letsencrypt-staging
 tlsSecretName: hello-world-tls
 # disableExternalDNS: true
+# disableContentSizeChecksNginx: true
 hosts:
   - domainName: test.polarlabs.ca
     ingressPaths:
