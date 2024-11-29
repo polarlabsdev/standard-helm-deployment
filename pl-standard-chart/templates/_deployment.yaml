@@ -33,7 +33,21 @@ spec:
       containers:
         - name: {{ .Values.appName }}-container
           image: {{ .Values.imageLocation }}
-          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}          
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}    
+          resources:
+            limits:
+              cpu: {{ .Values.resources.limits.cpu | default "200m" | quote }}
+              memory: {{ .Values.resources.limits.memory | default "256Mi" | quote }}
+            requests:
+              cpu: {{ .Values.resources.requests.cpu | default "100m" | quote }}
+              memory: {{ .Values.resources.requests.memory | default "128Mi" | quote }}
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: "kubernetes.io/hostname"
+              whenUnsatisfiable: "ScheduleAnyway"
+              labelSelector:
+                matchLabels:
+                  app: {{ .Values.appName }}-template
           args:          
             {{- range $arg := .Values.containerArgs }}
             - {{ $arg | quote }}

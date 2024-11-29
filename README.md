@@ -71,6 +71,13 @@ namespace: hello-world
 appName: hello-world
 replicas: 1
 imageLocation: hashicorp/http-echo
+resources:
+  limits:
+    cpu: "100m"
+    memory: "128Mi"
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
 containerArgs:
   - -text=echo1
 containerPorts:
@@ -110,10 +117,13 @@ The following items are optional and have defaults:
 - replicas
 - restartPolicy
 - imagePullPolicy
+- resources
 
 You can test it with `helm install your-chart ./path/to/chart/folder --dry-run` and make sure it looks like what you expect. Then remove `--dry-run` to actually install it.
 
 **NOTE: It is good practise to use the staging issuer until you're ready to deploy it for sure because there is a rate limit on the production issuer** 
+
+**NOTE: We have default values for resource requests/limits but it recommended to adjust for the needs of your application. If those values are not present at all, kube tends to put all the pods on the same node with high chance of overloading it and taking everything down - hence the defaults. However they are conservative defaults and if your application has high requirements it may suffer as a result.** 
 
 # How the pipeline works
 

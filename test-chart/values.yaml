@@ -1,6 +1,6 @@
 namespace: hello-world
 appName: hello-world
-replicas: 1
+replicas: 2
 imageLocation: hashicorp/http-echo
 registrySecretName: polar-labs-registry
 containerArgs:
@@ -19,6 +19,13 @@ secrets:
 clusterIssuerName: letsencrypt-staging
 tlsSecretName: hello-world-tls
 # disableExternalDNS: true
+resources:
+  limits:
+    cpu: "100m"
+    memory: "128Mi"
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
 hosts:
   - domainName: test1111.polarlabs.ca
     ingressPaths:
