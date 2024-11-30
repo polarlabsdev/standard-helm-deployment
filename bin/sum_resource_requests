@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Check if namespace is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <namespace>"
+  exit 1
+fi
+
+NAMESPACE=$1
+
+kubectl get pods -n "$NAMESPACE" -o json | jq '
+  .items[] | .spec.containers[] | .resources |
+  {
+    limits: {
+      cpu: (.limits.cpu // "0"),
+      memory: (.limits.memory // "0")
+    },
+    requests: {
+      cpu: (.requests.cpu // "0"),
+      memory: (.requests.memory // "0")
+    }
+  }
+' | jq -s '
+  reduce .[] as $item (
+    {
+      limits: { cpu: 0, memory: 0 },
+      requests: { cpu: 0, memory: 0 }
+    };
+    {
+      limits: {
+        cpu: (.limits.cpu + ($item.limits.cpu | sub("m"; "") | tonumber)),
+        memory: (.limits.memory + ($item.limits.memory | sub("Mi"; "") | tonumber))
+      },
+      requests: {
+        cpu: (.requests.cpu + ($item.requests.cpu | sub("m"; "") | tonumber)),
+        memory: (.requests.memory + ($item.requests.memory | sub("Mi"; "") | tonumber))
+      }
+    }
+  )
+' | jq '
+  {
+    limits: {
+      cpu: (.limits.cpu | tostring + "m"),
+      memory: (.limits.memory | tostring + "Mi")
+    },
+    requests: {
+      cpu: (.requests.cpu | tostring + "m"),
+      memory: (.requests.memory | tostring + "Mi")
+    }
+  }
+'

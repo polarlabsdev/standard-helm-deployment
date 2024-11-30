@@ -3,4 +3,4 @@ name: pl-standard-chart
 description: A Helm chart for a standard application deployment. It assumes you have a single working docker container and want to do a fairly vanilla deploy with it into a standard kubernetes installation.
 
 type: library
-version: 2.1.0
+version: 2.1.1

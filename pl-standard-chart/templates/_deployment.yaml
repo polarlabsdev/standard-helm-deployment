@@ -10,44 +10,56 @@ spec:
     matchLabels:
       app: {{ .Values.appName }}-template
   replicas: {{ default 1 .Values.replicas }}
+  minReadySeconds: {{ default 10 .Values.minReadySeconds }}
+  revisionHistoryLimit: {{ default 5 .Values.revisionHistoryLimit }}
   template:
     metadata:
       labels:
         app: {{ .Values.appName }}-template
     spec:
-      minReadySeconds: {{ default 10 .Values.minReadySeconds }}
-      revisionHistoryLimit: {{ default 5 .Values.revisionHistoryLimit }}
       restartPolicy: {{ default "Always" .Values.restartPolicy }}
       {{ if .Values.registrySecretName }}
       imagePullSecrets:
         - name: {{ .Values.registrySecretName }}
       {{ end }}
-
       volumes:
         {{- range $volume := .Values.persistentVolumeClaims }}
         - name: {{ $.Values.appName }}-volume-{{ $volume.name }}
           persistentVolumeClaim:
             claimName: {{ $.Values.appName }}-claim-{{ $volume.name }}
         {{- end }}
-
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: "ScheduleAnyway"
+          labelSelector:
+            matchLabels:
+              app: {{ .Values.appName }}-template
       containers:
         - name: {{ .Values.appName }}-container
           image: {{ .Values.imageLocation }}
-          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}    
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}        
+          {{- if .Values.resources }}
           resources:
+            {{- if .Values.resources.limits }}
             limits:
-              cpu: {{ .Values.resources.limits.cpu | default "200m" | quote }}
-              memory: {{ .Values.resources.limits.memory | default "256Mi" | quote }}
+              {{- if .Values.resources.limits.cpu }}
+              cpu: {{ .Values.resources.limits.cpu | quote }}
+              {{- end }}
+              {{- if .Values.resources.limits.memory }}
+              memory: {{ .Values.resources.limits.memory | quote }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.resources.requests }}
             requests:
-              cpu: {{ .Values.resources.requests.cpu | default "100m" | quote }}
-              memory: {{ .Values.resources.requests.memory | default "128Mi" | quote }}
-          topologySpreadConstraints:
-            - maxSkew: 1
-              topologyKey: "kubernetes.io/hostname"
-              whenUnsatisfiable: "ScheduleAnyway"
-              labelSelector:
-                matchLabels:
-                  app: {{ .Values.appName }}-template
+              {{- if .Values.resources.requests.cpu }}
+              cpu: {{ .Values.resources.requests.cpu | quote }}
+              {{- end }}
+              {{- if .Values.resources.requests.memory }}
+              memory: {{ .Values.resources.requests.memory | quote }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
           args:          
             {{- range $arg := .Values.containerArgs }}
             - {{ $arg | quote }}

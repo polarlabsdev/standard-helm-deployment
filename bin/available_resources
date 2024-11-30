@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Get the list of nodes
+nodes=$(kubectl get nodes -o json)
+
+# Iterate over each node
+echo "$nodes" | jq -r '.items[].metadata.name' | while read -r node; do
+  # Get allocatable resources for the node
+  allocatable_cpu=$(echo "$nodes" | jq -r --arg node "$node" '.items[] | select(.metadata.name == $node) | .status.allocatable.cpu')
+  allocatable_memory=$(echo "$nodes" | jq -r --arg node "$node" '.items[] | select(.metadata.name == $node) | .status.allocatable.memory')
+
+  # Get the total requests for the node
+  requests=$(kubectl get pods --all-namespaces -o json | jq -r --arg node "$node" '
+    .items[] | select(.spec.nodeName == $node) | .spec.containers[] | .resources.requests
+  ' | jq -s '
+    reduce .[] as $item (
+      {cpu: 0, memory: 0};
+      {
+        cpu: (.cpu + ($item.cpu // "0" | sub("m"; "") | tonumber)),
+        memory: (.memory + ($item.memory // "0" | sub("Mi"; "") | tonumber))
+      }
+    )
+  ')
+
+  # Extract the total requests
+  requested_cpu=$(echo "$requests" | jq -r '.cpu')
+  requested_memory=$(echo "$requests" | jq -r '.memory')
+
+  # Convert allocatable memory from Mi to MiB
+  allocatable_memory_mib=$(echo "$allocatable_memory" | sed 's/Mi//')
+
+  # Calculate available resources using bc for floating-point arithmetic
+  available_cpu=$(echo "scale=2; $(echo "$allocatable_cpu" | sed 's/m//') - $requested_cpu" | bc)m
+  available_memory=$(echo "scale=2; $allocatable_memory_mib - $requested_memory" | bc)Mi
+
+  # Output the results
+  echo "Node: $node"
+  echo "Allocatable CPU: $allocatable_cpu"
+  echo "Allocatable Memory: $allocatable_memory"
+  echo "Requested CPU: ${requested_cpu}m"
+  echo "Requested Memory: ${requested_memory}Mi"
+  echo "Available CPU: $available_cpu"
+  echo "Available Memory: $available_memory"
+  echo
+done

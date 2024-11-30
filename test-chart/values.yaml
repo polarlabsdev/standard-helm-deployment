@@ -21,7 +21,6 @@ tlsSecretName: hello-world-tls
 # disableExternalDNS: true
 resources:
   limits:
-    cpu: "100m"
     memory: "128Mi"
   requests:
     cpu: "50m"

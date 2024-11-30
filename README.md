@@ -73,7 +73,6 @@ replicas: 1
 imageLocation: hashicorp/http-echo
 resources:
   limits:
-    cpu: "100m"
     memory: "128Mi"
   requests:
     cpu: "50m"
@@ -123,7 +122,7 @@ You can test it with `helm install your-chart ./path/to/chart/folder --dry-run` 
 
 **NOTE: It is good practise to use the staging issuer until you're ready to deploy it for sure because there is a rate limit on the production issuer** 
 
-**NOTE: We have default values for resource requests/limits but it recommended to adjust for the needs of your application. If those values are not present at all, kube tends to put all the pods on the same node with high chance of overloading it and taking everything down - hence the defaults. However they are conservative defaults and if your application has high requirements it may suffer as a result.** 
+**NOTE: By default, we do not include resource requests and limits in the manifest if they are not specified in the `values.yaml` file. This means the container will not have any resource requests or limits set, causing Kubernetes to treat it as a low priority pod. It will be the first to be evicted or restricted in CPU usage, but it will still be scheduled. This setup is ideal for preview environments where resource starvation is acceptable, but scheduling is important. For production deployments, you must set appropriate resource values in the `values.yaml` file.**
 
 # How the pipeline works
 
