@@ -26,8 +26,8 @@ echo "$nodes" | jq -r '.items[].metadata.name' | while read -r node; do
   requested_cpu=$(echo "$requests" | jq -r '.cpu')
   requested_memory=$(echo "$requests" | jq -r '.memory')
 
-  # Convert allocatable memory from Mi to MiB
-  allocatable_memory_mib=$(echo "$allocatable_memory" | sed 's/Mi//')
+  # Convert allocatable memory to MiB, handling both Ki and Mi units
+  allocatable_memory_mib=$(echo "$allocatable_memory" | awk '/Ki$/ {print $1/1024} /Mi$/ {print $1}' | sed 's/[KM]i//')
 
   # Calculate available resources using bc for floating-point arithmetic
   available_cpu=$(echo "scale=2; $(echo "$allocatable_cpu" | sed 's/m//') - $requested_cpu" | bc)m

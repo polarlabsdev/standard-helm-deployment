@@ -21,10 +21,10 @@ tlsSecretName: hello-world-tls
 # disableExternalDNS: true
 resources:
   limits:
-    memory: "128Mi"
+    memory:
   requests:
-    cpu: "50m"
-    memory: "64Mi"
+    cpu:
+    memory:
 hosts:
   - domainName: test1111.polarlabs.ca
     ingressPaths:
