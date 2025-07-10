@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# --- Build Helm dependencies for both charts ---
+helm dependency update ./pl-workload-chart
+helm dependency update ./pl-cluster-setup-chart
+
 # --- Package and push pl-workload-chart ---
 # parse the output of the helm command to get the location of the packaged file
 export HELM_PKG=$(helm package ./pl-workload-chart | grep -o '/[^ ]*')
