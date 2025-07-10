@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
+# --- Package and push pl-workload-chart ---
 # parse the output of the helm command to get the location of the packaged file
-export HELM_PKG=$(helm package ./pl-standard-chart | grep -o '/[^ ]*')
+export HELM_PKG=$(helm package ./pl-workload-chart | grep -o '/[^ ]*')
 
 # hack to check for error in the response and fail CI/CD if found.
 # the curl command sends the file to chartmuseum which we get from the env
@@ -14,9 +15,28 @@ export CURL_RESULT=$(curl --data-binary "@$HELM_PKG" $PL_CM_URL -u $CHARTMUSEUM_
 echo "$CURL_RESULT"
 
 if [[ $CURL_RESULT == *$FILE_EXISTS* ]]; then
-  exit 0
+  echo "pl-workload-chart already exists in ChartMuseum, skipping error."
+else
+  if [[ $CURL_RESULT == *"error"*  ]]; then
+    echo "Error uploading pl-workload-chart to ChartMuseum."
+    exit 1
+  fi
 fi
 
-if [[ $CURL_RESULT == *"error"*  ]]; then
-  exit 1
+# --- Package and push pl-cluster-setup-chart ---
+# parse the output of the helm command to get the location of the packaged file
+export HELM_PKG_CLUSTER=$(helm package ./pl-cluster-setup-chart | grep -o '/[^ ]*')
+
+# hack to check for error in the response and fail CI/CD if found.
+# the curl command sends the file to chartmuseum which we get from the env
+export CURL_RESULT_CLUSTER=$(curl --data-binary "@$HELM_PKG_CLUSTER" $PL_CM_URL -u $CHARTMUSEUM_USERNAME:$CHARTMUSEUM_PASSWORD)
+echo "$CURL_RESULT_CLUSTER"
+
+if [[ $CURL_RESULT_CLUSTER == *$FILE_EXISTS* ]]; then
+  echo "pl-cluster-setup-chart already exists in ChartMuseum, skipping error."
+else
+  if [[ $CURL_RESULT_CLUSTER == *"error"*  ]]; then
+    echo "Error uploading pl-cluster-setup-chart to ChartMuseum."
+    exit 1
+  fi
 fi

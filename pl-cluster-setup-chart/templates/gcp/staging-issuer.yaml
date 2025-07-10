@@ -1,0 +1,22 @@
+{{- if eq .Values.profile "gcp" -}}
+{{- if .Values.clusterIssuers.staging.enabled -}}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    email: {{ .Values.clusterIssuers.staging.email }}
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+    - dns01:
+        cloudDNS:
+          project: {{ .Values.clusterIssuers.staging.solver.dns01.cloudDNS.project }}
+{{- if .Values.clusterIssuers.staging.solver.dns01.cloudDNS.serviceAccountSecretRef }}
+          serviceAccountSecretRef:
+            name: {{ .Values.clusterIssuers.staging.solver.dns01.cloudDNS.serviceAccountSecretRef.name }}
+{{- end }}
+{{- end }}
+{{- end }}

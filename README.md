@@ -1,132 +1,63 @@
 # Polar Labs Standard Helm Deployment #
 
-This repo contains 2 helm charts that we use as part of our starter kits to standardize a typical deploy. Currently the repo assumes a Digital Ocean managed Kubernetes, but the technologies used (nginx-ingress and cert-manager) can be applied to pretty much any Kubernetes Cluster (though for something like Amazon you might consider AWS Load Balancer Controller).
+This repo provides a standardized and automated way to deploy applications to Kubernetes. It includes a reusable library chart for applications and a pre-configured umbrella chart to bootstrap a full environment.
 
-# Setup
+# How to Deploy Everything
 
-We have created 2 guides for this starterkit that you can follow to understand this starterkit and how to get your environment set up to use it:
+The easiest way to get started is to use the root of this repository as your deployment chart. This will deploy both the necessary cluster infrastructure (like `ingress-nginx` and `cert-manager`) and a sample application in a single command, using the included charts.
 
-1. [How our Helm StarterKit works](https://polarlabs.ca/stories/how-our-helm-starterkit-works)
-2. [How to configure Digital Ocean Kubernetes with cert-manager and external-dns](https://polarlabs.ca/stories/digital-ocean-kubernetes-cert-manager-external-dns)
+### 1. Configure Your Deployment
 
-## Handy plugins we recommend
+All configuration is handled in a single file: `pl-cluster-setup-chart/values.yaml` and `pl-workload-chart/values.yaml`. These files are divided into two main sections:
 
-- https://krew.sigs.k8s.io/docs/user-guide/setup/install/
-- https://github.com/corneliusweig/ketall
-- https://pod-lens.guoxudong.io/
+-   `pl-cluster-setup-chart`: Contains all the settings for the base infrastructure. Here you will configure `cert-manager`, `external-dns`, and `ingress-nginx`.
+-   `pl-workload-chart`: Contains all the settings for your application, such as the image to deploy, resource requests, and ingress rules.
 
-# Using the pl-standard-chart
+Open these files and edit them to match your environment (e.g., set your domain names, cloud provider settings, etc.).
 
-This part is fairly easy as well. Create a chart in your application with `helm create your-chart`.
+### 2. Install the Charts
 
-Inside that chart, clear out the templates folder and add the pl-standard-chart as a dependency like this:
+Once your values files are configured, navigate to the root of this repository and run the following commands.
 
-```
-apiVersion: v2
-name: test-chart
-description: A hello world type chart to test the library in this repo
-
-type: application
-
-version: 0.1.0
-appVersion: "0.1.0"
-
-dependencies:
-  - name: pl-standard-chart
-    version: 1.0.0
-    repository: https://helm.polarlabs.ca
-
+First, update the local chart dependencies:
+```bash
+helm dependency update ./pl-cluster-setup-chart
+helm dependency update ./pl-workload-chart
 ```
 
-Then run `helm dependency update ./your-chart` and it will install a copy of the chart into the `charts/` folder of your chart (I know chart is getting redundant but I didn't design this). We recommend git-ignoring this folder unless you have your own charts in there, then maybe just gitignore the pl chart.
-
-From there as you can see in the test repo you can make a single file (named anything you want) in your `templates/` directory that pulls in the 4 main files:
-
+Then, run the installation. This command will deploy the stack (in two steps):
+```bash
+helm install cluster-setup ./pl-cluster-setup-chart --namespace cluster-setup --create-namespace
+helm install my-app ./pl-workload-chart --namespace my-app --create-namespace
 ```
-{{- include "pl-standard-chart.namespace" . }}
+
+This will bootstrap your cluster and deploy your application, all managed through version-controlled `values.yaml` files.
 
 ---
 
-{{- include "pl-standard-chart.secrets" . }}
+# Chart Details
+
+## `pl-cluster-setup-chart`
+
+This chart installs and configures the base services required for a modern Kubernetes environment. It manages:
+
+-   **ingress-nginx:** An Ingress controller.
+-   **cert-manager:** For automated TLS certificate management.
+-   **external-dns:** To automatically manage DNS records.
+
+It is designed to be deployed directly or as a dependency of a top-level chart.
+
+## `pl-workload-chart`
+
+This is a reusable library chart for deploying your applications. It provides templates for creating Deployments, Services, Ingresses, and other standard Kubernetes resources.
+
+To use it in your own projects, you would add it as a dependency to your application's Helm chart and configure it via your `values.yaml`, similar to the example above.
 
 ---
-
-{{- include "pl-standard-chart.deployment" . }}
-
----
-
-{{- include "pl-standard-chart.service" . }}
-
----
-
-{{- include "pl-standard-chart.nginx-cert-manager-ingress" . }}
-
----
-```
-
-Lastly you need a `Values.yaml` file that looks like this:
-
-```
-namespace: hello-world
-appName: hello-world
-replicas: 1
-imageLocation: hashicorp/http-echo
-resources:
-  limits:
-    memory: "128Mi"
-  requests:
-    cpu: "50m"
-    memory: "64Mi"
-containerArgs:
-  - -text=echo1
-containerPorts:
-  - name: web-ui
-    port: 80
-    targetPort: 5678
-envVars:
-  TEST: test
-secrets:
-  - name: do-creds
-    type: Opaque
-    data:
-      TEST: test
-clusterIssuerName: letsencrypt-staging
-tlsSecretName: hello-world-tls
-# disableExternalDNS: true
-# disableContentSizeChecksNginx: true
-hosts:
-  - domainName: test.polarlabs.ca
-    ingressPaths:
-      - path: /
-        type: Prefix
-        servicePort: 80
-  - domainName: test2.polarlabs.ca
-    ingressPaths:
-      - path: /
-        type: Prefix
-        servicePort: 80
-# persistentVolumeClaims:
-#   - name: test-pvc
-#     storage: 5Gi
-#     mountPath: /data
-```
-
-The following items are optional and have defaults:
-
-- replicas
-- restartPolicy
-- imagePullPolicy
-- resources
-
-You can test it with `helm install your-chart ./path/to/chart/folder --dry-run` and make sure it looks like what you expect. Then remove `--dry-run` to actually install it.
-
-**NOTE: It is good practise to use the staging issuer until you're ready to deploy it for sure because there is a rate limit on the production issuer** 
-
-**NOTE: By default, we do not include resource requests and limits in the manifest if they are not specified in the `values.yaml` file. This means the container will not have any resource requests or limits set, causing Kubernetes to treat it as a low priority pod. It will be the first to be evicted or restricted in CPU usage, but it will still be scheduled. This setup is ideal for preview environments where resource starvation is acceptable, but scheduling is important. For production deployments, you must set appropriate resource values in the `values.yaml` file.**
 
 # How the pipeline works
 
-We are using [Chartmuseum](https://github.com/helm/chartmuseum) to host our charts which we deploying using pl-standard-deployment charts into our own kube cluster. The repo is located currently at https://helm.polarlabs.ca. If you would like to host your own, we include the chart for Chartmuseum in this repo and you can deploy to your own cluster.
+We are using [Chartmuseum](https://github.com/helm/chartmuseum) to host our charts which we deploy using pl-standard-deployment charts into our own kube cluster. The repo is located currently at https://helm.polarlabs.ca. If you would like to host your own, we include the chart for Chartmuseum in this repo and you can deploy to your own cluster.
 
 This repo automates deployment of updates to the standard deployment charts with a simple script in a bitbucket pipeline. It simply packages the file and uploads to Chartmuseum via curl, and can be easily extended to update many charts to Chartmuseum.
 
@@ -134,3 +65,9 @@ This repo automates deployment of updates to the standard deployment charts with
 # NOTES #
 
 - If you use a persistent storage claim with Digital Ocean you can only have 1 replica because DO volumes only support ReadWriteOnce. You must also manually delete PVCs after their creation, they don't go down with the deployment. They should go down with`helm uninstall` though.
+
+ # Considerations: #
+
+- The test-chart from previous commits is removed for now. The chart capabilities can be tested from the root chart which triggers execution of 2 sub charts
+
+- Cloud Infra level tasks are expected to be done manually e.g: creation of serviceAccounts in GCP or other clouds (which is reasonable because helm is not supposed to be provisioning cloud resources)

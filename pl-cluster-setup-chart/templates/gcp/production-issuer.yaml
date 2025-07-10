@@ -1,0 +1,23 @@
+{{- if eq .Values.profile "gcp" -}}
+{{- if .Values.clusterIssuers.production.enabled -}}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-production
+spec:
+  acme:
+    email: {{ .Values.clusterIssuers.production.email }}
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-production
+    solvers:
+    - dns01:
+        cloudDNS:
+          project: {{ .Values.clusterIssuers.production.solver.dns01.cloudDNS.project }}
+          {{- if .Values.clusterIssuers.production.solver.dns01.cloudDNS.serviceAccountSecretRef }}
+          serviceAccountSecretRef:
+            name: {{ .Values.clusterIssuers.production.solver.dns01.cloudDNS.serviceAccountSecretRef.name }}
+            key: {{ .Values.clusterIssuers.production.solver.dns01.cloudDNS.serviceAccountSecretRef.key }}
+{{- end }}
+{{- end }}
+{{- end }}

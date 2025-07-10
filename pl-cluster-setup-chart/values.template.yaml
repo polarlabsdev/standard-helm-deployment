@@ -1,0 +1,66 @@
+# Default values for pl-cluster-setup-chart.
+# This file defines the default structure and values.
+# These will be overridden by the values from the parent chart (test-chart).
+
+# -- Select the configuration profile to use. Can be "generic" or "gcp".
+profile: "gcp"
+
+# -- Enable and configure cert-manager installation
+cert-manager:
+  enabled: true
+  namespace: "cert-manager"
+  serviceAccount:
+    create: true
+    name: "<CERT_MANAGER_KSA_PLACEHOLDER>"
+    annotations:
+      iam.gke.io/gcp-service-account: "<CERT_MANAGER_GSA_PLACEHOLDER>@<PROJECT_ID>.iam.gserviceaccount.com"
+  installCRDs: true
+  global:
+    leaderElection:
+      namespace: "kube-system"
+  prometheus:
+    enabled: false
+
+# -- Enable and configure external-dns installation
+# This does not currently have a profile option, as it is assumed to be used with GCP.
+external-dns:
+  enabled: true
+  provider: "google" # digitalocean, google, aws, etc.
+  namespace: "external-dns"
+  policy: "sync"
+  domainFilters:
+  - "<DOMAIN_PLACEHOLDER>"
+# Workload Identity configuration
+  serviceAccount:
+   create: true 
+   name: "<EXTERNAL_DNS_KSA_PLACEHOLDER>"
+   annotations:
+    iam.gke.io/gcp-service-account: "<EXTERNAL_DNS_GSA_PLACEHOLDER>@<PROJECT_ID>.iam.gserviceaccount.com" 
+
+
+# -- Enable and configure ingress-nginx installation
+ingress-nginx:
+  enabled: false
+  namespace: "ingress-nginx"
+  controller:
+    service:
+      enabled: true
+      type: LoadBalancer
+
+# -- Configuration for the ClusterIssuers to be created
+clusterIssuers:
+  staging:
+    enabled: true
+    email: "<EMAIL_PLACEHOLDER>"
+    solver:
+      dns01:
+        cloudDNS:
+          project: "<PROJECT_ID>"
+  production:
+    enabled: true
+    email: "<EMAIL_PLACEHOLDER>"
+    solver:
+      dns01:
+        cloudDNS:
+          project: "<PROJECT_ID>"
+

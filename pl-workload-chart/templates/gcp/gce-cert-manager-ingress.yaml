@@ -1,0 +1,44 @@
+{{- if eq .Values.profile "gcp" }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.appName }}-gke-ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuerName | default "letsencrypt-staging" }}
+    {{- with .Values.ingressAnnotations }}
+    {{- . | toYaml | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if .Values.defaultBackend }}
+  defaultBackend:
+    service:
+      name: {{ .Values.defaultBackend.service.name }}
+      port:
+        number: {{ .Values.defaultBackend.service.port.number }}
+  {{- end }}
+  rules:
+  {{- range .Values.hosts }}
+  - host: {{ .domainName | quote }}
+    http:
+      paths:
+      {{- range .ingressPaths }}
+      - path: {{ .path }}
+        pathType: {{ .type }}
+        backend:
+          service:
+            name: {{ $.Values.appName }}-service
+            port:
+              number: {{ .servicePort }}
+      {{- end }}
+  {{- end }}
+  {{- if .Values.tlsSecretName }}
+  tls:
+  - hosts:
+    {{- range .Values.hosts }}
+    - {{ .domainName | quote }}
+    {{- end }}
+    secretName: {{ .Values.tlsSecretName }}
+  {{- end }}
+{{- end }}

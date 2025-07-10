@@ -1,0 +1,85 @@
+{{- /* Unified deployment for both GCP and generic profiles */}}
+
+{{- if or (eq .Values.profile "gcp") (eq .Values.profile "generic") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}-template
+  replicas: {{ default 1 .Values.replicas }}
+  {{- if .Values.minReadySeconds }}
+  minReadySeconds: {{ .Values.minReadySeconds }}
+  {{- end }}
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}-template
+    spec:
+      {{- if and (eq .Values.profile "gcp") .Values.gcp.serviceAccountName }}
+      serviceAccountName: {{ .Values.gcp.serviceAccountName }}
+      {{- end }}
+      restartPolicy: {{ default "Always" .Values.restartPolicy }}
+      {{- if .Values.registrySecretName }}
+      imagePullSecrets:
+        - name: {{ .Values.registrySecretName }}
+      {{- end }}
+      {{- if .Values.persistentVolumeClaims }}
+      volumes:
+        {{- range .Values.persistentVolumeClaims }}
+        - name: {{ $.Values.appName }}-volume-{{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ $.Values.appName }}-claim-{{ .name }}
+        {{- end }}
+      {{- end }}
+      {{- if eq .Values.profile "generic" }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "kubernetes.io/hostname"
+          whenUnsatisfiable: "ScheduleAnyway"
+          labelSelector:
+            matchLabels:
+              app: {{ .Values.appName }}-template
+      {{- end }}
+      containers:
+        - name: {{ .Values.appName }}-container
+          image: {{ .Values.imageLocation }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}
+          {{- with .Values.resources }}
+          resources: {{- . | toYaml | nindent 12 }}
+          {{- end }}
+          {{- with .Values.containerArgs }}
+          args: {{- . | toYaml | nindent 12 }}
+          {{- end }}
+          ports:
+            {{- range .Values.containerPorts }}
+            - name: {{ .name }}
+              containerPort: {{ .targetPort }}
+              {{ if .protocol }}
+              protocol: {{ .protocol }}
+              {{ end }}
+            {{- end }}
+          envFrom:
+            {{- range .Values.secrets }}
+            - secretRef:
+                name: {{ .name }}
+            {{- end }}
+          env:
+            {{- range $key, $val := .Values.envVars }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+          {{- if .Values.persistentVolumeClaims }}
+          volumeMounts:
+            {{- range .Values.persistentVolumeClaims }}
+            - mountPath: {{ .mountPath | quote }}
+              name: {{ $.Values.appName }}-volume-{{ .name }}
+            {{- end }}
+          {{- end }}
+{{- end }}

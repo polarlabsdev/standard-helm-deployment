@@ -1,0 +1,16 @@
+apiVersion: v2
+name: helm-deployment-chart
+description: A master umbrella chart to deploy the cluster setup and a standard application.
+
+type: application
+
+version: 1.0.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: pl-cluster-setup-chart
+    version: 1.0.0
+    repository: file://pl-cluster-setup-chart
+  - name: pl-workload-chart
+    version: 3.0.0
+    repository: file://pl-workload-chart

@@ -50,3 +50,6 @@ Thumbs.db
 *.mov
 *.wmv
 
+**/values.yaml
+pl-cluster-setup-chart/values.yaml
+pl-workload-chart/values.yaml

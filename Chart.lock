@@ -1,0 +1,9 @@
+dependencies:
+- name: pl-cluster-setup-chart
+  repository: file://pl-cluster-setup-chart
+  version: 0.1.0
+- name: pl-standard-chart
+  repository: file://pl-standard-chart
+  version: 2.1.1
+digest: sha256:30d4ca78d740a714036f203effff61980ae2b63e63d49d88f7769dd1e5b81b17
+generated: "2025-07-08T01:01:30.866913-04:00"

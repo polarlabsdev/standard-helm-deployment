@@ -1,5 +1,4 @@
-{{- define "pl-standard-chart.nginx-cert-manager-ingress" }}
-
+{{- if eq .Values.profile "generic" }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -7,6 +6,11 @@ metadata:
   namespace: {{ .Values.namespace }}
   annotations:
     cert-manager.io/cluster-issuer: {{ .Values.clusterIssuerName }}
+    {{- if .Values.ingressAnnotations }}
+    {{- range $key, $value := .Values.ingressAnnotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
     {{ if .Values.disableExternalDNS }}
     external-dns.alpha.kubernetes.io/ingress-hostname-source: annotation-only
     external-dns.alpha.kubernetes.io/hostname: ""
@@ -15,7 +19,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     {{ end }}    
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingressClassName | default "nginx" }}
   tls:
   - hosts:
     {{- range $host := .Values.hosts }}
@@ -32,10 +36,9 @@ spec:
           pathType: {{ $path.type }}
           backend:
             service:
-              name: {{ $.Values.appName }}-service # this matches pl-standard-chart/templates/_service.yaml
+              name: {{ $.Values.appName }}-service
               port:
                 number: {{ $path.servicePort }}
         {{- end }}
   {{- end }}
-
 {{- end }}

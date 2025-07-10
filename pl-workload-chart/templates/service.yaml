@@ -1,5 +1,3 @@
-{{- define "pl-standard-chart.service" }}
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -16,6 +14,4 @@ spec:
       {{ if $port.protocol }}
       protocol: {{ $port.protocol }}
       {{ end }}
-    {{- end }}    
-
-{{- end }}
+    {{- end }}

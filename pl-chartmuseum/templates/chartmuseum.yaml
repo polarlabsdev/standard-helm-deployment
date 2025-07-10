@@ -1,19 +1,19 @@
-{{- include "pl-standard-chart.namespace" . }}
+{{- include "pl-workload-chart.namespace" . }}
 
 ---
 
-{{- include "pl-standard-chart.secrets" . }}
+{{- include "pl-workload-chart.secrets" . }}
 
 ---
 
-{{- include "pl-standard-chart.deployment" . }}
+{{- include "pl-workload-chart.deployment" . }}
 
 ---
 
-{{- include "pl-standard-chart.service" . }}
+{{- include "pl-workload-chart.service" . }}
 
 ---
 
-{{- include "pl-standard-chart.nginx-cert-manager-ingress" . }}
+{{- include "pl-workload-chart.nginx-cert-manager-ingress" . }}
 
 ---

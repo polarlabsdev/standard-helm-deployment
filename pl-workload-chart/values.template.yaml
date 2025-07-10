@@ -1,0 +1,66 @@
+# Profile selection
+profile: gcp  # or "generic"
+
+# Namespace and app
+namespace: hello-world
+appName: hello-world
+
+# Deployment
+replicas: 2
+imageLocation: hashicorp/http-echo
+registrySecretName: polar-labs-registry
+containerArgs:
+  - -text=echo1
+containerPorts:
+  - name: web-ui
+    port: 80
+    targetPort: 5678
+resources:
+  limits:
+    memory:
+  requests:
+    cpu:
+    memory:
+
+# Environment and secrets
+envVars:
+  TEST: test
+secrets:
+  - name: do-creds
+    type: Opaque
+    data:
+      TEST: test
+
+# Ingress
+clusterIssuerName: letsencrypt-production
+# This secret will be created by cert-manager and referenced by your Ingress and Certificate
+# It must match the 'secretName' in both the Certificate and Ingress resources
+# Example: hello-world-tls
+# If you change this, make sure to update it everywhere
+#
+tlsSecretName: "hello-world-tls"
+ingressClassName: gce  # or "nginx" for generic
+ingressAnnotations: {}
+hosts:
+  - domainName: test1111.polarlabs.ca
+    ingressPaths:
+      - path: /
+        type: Prefix
+        servicePort: 80
+
+# Optional: Persistent Volumes
+# persistentVolumeClaims:
+#   - name: test-pvc
+#     storage: 5Gi
+#     mountPath: /data
+
+# Optional: Default backend for ingress (used by both profiles)
+# defaultBackend:
+#   service:
+#     name: my-default-backend
+#     port:
+#       number: 80
+
+# Optional: GCP-specific
+gcp:
+  serviceAccountName: ""
