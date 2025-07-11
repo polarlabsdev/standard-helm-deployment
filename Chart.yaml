@@ -12,5 +12,5 @@ dependencies:
     version: 1.0.0
     repository: file://pl-cluster-setup-chart
   - name: pl-workload-chart
-    version: 3.0.0
+    version: 3.0.1
     repository: file://pl-workload-chart
