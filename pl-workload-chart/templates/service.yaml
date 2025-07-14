@@ -4,7 +4,7 @@ metadata:
   name: {{ .Values.appName }}-service
   namespace: {{ .Values.namespace }}
 spec:
-  type: NodePort
+  type: {{ .Values.service.type | default "ClusterIP" }}
   selector:
     app: {{ .Values.appName }}-template
   ports:
@@ -12,12 +12,7 @@ spec:
     - name: {{ $port.name }}
       port: {{ $port.port }}
       targetPort: {{ $port.targetPort }}
-      {{- if eq .Values.service.type "NodePort" }}
-      {{- if $port.nodePort }}
-      nodePort: {{ $port.nodePort }}
-      {{- end }}
-      {{- end }}
-      {{ if $port.protocol }}
+      {{- if $port.protocol }}
       protocol: {{ $port.protocol }}
-      {{ end }}
+      {{- end }}
     {{- end }}
