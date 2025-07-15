@@ -15,6 +15,11 @@ containerPorts:
   - name: web-ui
     port: 80
     targetPort: 5678
+
+# Service configuration
+service:
+  type: NodePort # Can be ClusterIP, NodePort, LoadBalancer
+
 resources:
   limits:
     memory:
@@ -63,4 +68,15 @@ hosts:
 
 # Optional: GCP-specific
 gcp:
-  serviceAccountName: ""
+  serviceAccountName: "<GCP_SA_PLACEHOLDER>"
+  annotations:
+    iam.gke.io/gcp-service-account: "<GCP_ANNOTATION_PLACEHOLDER>@your-project.iam.gserviceaccount.com"
+  backendConfig:
+    name: hello-world-backendconfig
+    checkIntervalSec: 30
+    timeoutSec: 5
+    healthyThreshold: 1
+    unhealthyThreshold: 5
+    port: 80
+    type: HTTP
+    requestPath: /healthz

@@ -22,8 +22,8 @@ spec:
       labels:
         app: {{ .Values.appName }}-template
     spec:
-      {{- if and (eq .Values.profile "gcp") .Values.gcp.serviceAccountName }}
-      serviceAccountName: {{ .Values.gcp.serviceAccountName }}
+      {{- if or .Values.gcp.serviceAccountName .Values.serviceAccountName }}
+      serviceAccountName: {{ .Values.serviceAccountName | default .Values.appName }}
       {{- end }}
       restartPolicy: {{ default "Always" .Values.restartPolicy }}
       {{- if .Values.registrySecretName }}

@@ -3,6 +3,10 @@ kind: Service
 metadata:
   name: {{ .Values.appName }}-service
   namespace: {{ .Values.namespace }}
+  {{- if .Values.gcp.backendConfig }}
+  annotations:
+    cloud.google.com/backend-config: '{"default": "{{ .Values.gcp.backendConfig.name | default (printf "%s-backendconfig" .Values.appName) }}"}'
+  {{- end }}
 spec:
   type: {{ .Values.service.type | default "ClusterIP" }}
   selector:

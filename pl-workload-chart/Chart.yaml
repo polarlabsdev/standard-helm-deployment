@@ -3,5 +3,5 @@ name: pl-workload-chart
 description: A flexible, cloud-agnostic workload deployment chart for PolarLabs. Supports GCP, DigitalOcean, and future providers. Deploys application workloads on top of a prepared cluster.
 
 type: application
-appVersion: "1.0.0"
-version: 3.0.3
+appVersion: "1.1.0"
+version: 3.1.0
