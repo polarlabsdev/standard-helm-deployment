@@ -66,9 +66,11 @@ hosts:
 #     port:
 #       number: 80
 
+#Paste the name of the ServiceAccount to create and pass in the Deployment config. 
+
+serviceAccountName: "hello-world"
 # Optional: GCP-specific
 gcp:
-  serviceAccountName: "<GCP_SA_PLACEHOLDER>"
   annotations:
     iam.gke.io/gcp-service-account: "<GCP_ANNOTATION_PLACEHOLDER>@your-project.iam.gserviceaccount.com"
   backendConfig:
@@ -76,6 +78,6 @@ gcp:
     timeoutSec: 5
     healthyThreshold: 1
     unhealthyThreshold: 5
-    port: 80
+    port: 8080
     type: HTTP
     requestPath: /healthz
