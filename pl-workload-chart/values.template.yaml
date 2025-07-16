@@ -72,7 +72,6 @@ gcp:
   annotations:
     iam.gke.io/gcp-service-account: "<GCP_ANNOTATION_PLACEHOLDER>@your-project.iam.gserviceaccount.com"
   backendConfig:
-    name: hello-world-backendconfig
     checkIntervalSec: 30
     timeoutSec: 5
     healthyThreshold: 1
