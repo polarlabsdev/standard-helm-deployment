@@ -6,6 +6,7 @@ metadata:
   {{- if .Values.gcp.backendConfig }}
   annotations:
     cloud.google.com/backend-config: '{"default": "{{ .Values.gcp.backendConfig.name | default (printf "%s-backendconfig" .Values.appName) }}"}'
+    cloud.google.com/neg: '{"ingress": true}'
   {{- end }}
 spec:
   type: {{ .Values.service.type | default "ClusterIP" }}
