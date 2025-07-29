@@ -66,18 +66,42 @@ hosts:
 #     port:
 #       number: 80
 
-#Paste the name of the ServiceAccount to create and pass in the Deployment config. 
+# ServiceAccountName is required to pass in the deployment config for both GCP and generic profiles.
+# Also required to create ServiceAccount resource for both GCP and generic profiles.
+serviceAccountName: "hello-world-hahha"
 
-serviceAccountName: "hello-world"
 # Optional: GCP-specific
 gcp:
-  annotations:
+  serviceAccountAnnotations:
     iam.gke.io/gcp-service-account: "<GCP_ANNOTATION_PLACEHOLDER>@your-project.iam.gserviceaccount.com"
+ 
+  ingress:
+    enabled: false # Set true to enable GCP Ingress
+
+  # BackendConfig health check values are now sourced from gatewayapi.healthCheckPolicy for DRY config.
   backendConfig:
-    checkIntervalSec: 30
-    timeoutSec: 5
-    healthyThreshold: 1
-    unhealthyThreshold: 5
-    port: 8080
-    type: HTTP
-    requestPath: /healthz
+    enabled: false 
+    # All health check tuning is inherited from gatewayapi.healthCheckPolicy below
+
+  gatewayapi:
+    enabled: false
+    # Gateway API resources for advanced traffic management (Kubernetes Gateway API)
+    httproute:
+      gatewayName: "gateway"  # Name of Gateway resource to attach this route to
+      path: "/"  # URL path to match for routing
+      port: 80    # Service port to forward traffic to
+
+
+    referenceGrant:
+      fromNamespace: "default"  # Namespace of the referencing resource
+      toName: "hello-world"  # Name of the referenced resource
+
+    # All health check tuning for both Gateway API and BackendConfig
+    healthCheckPolicy:
+      type: HTTP      # Health check protocol (HTTP/HTTPS/TCP/GRPC)
+      port: 80        # Port to use for health checking
+      path: "/healthz"      # HTTP path to use for health checking
+      intervalSeconds: 30    # Time between health checks
+      timeoutSeconds: 5      # Timeout for each health check
+      healthyThreshold: 1    # Number of successes before marking healthy
+      unhealthyThreshold: 3  # Number of failed checks before marking unhealthy

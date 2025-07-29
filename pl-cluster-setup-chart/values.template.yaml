@@ -63,4 +63,3 @@ clusterIssuers:
       dns01:
         cloudDNS:
           project: "<PROJECT_ID>"
-

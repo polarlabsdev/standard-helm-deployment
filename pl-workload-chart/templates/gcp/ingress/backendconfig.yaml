@@ -1,0 +1,23 @@
+{{- /*
+  BackendConfig: GKE custom health checks and backend settings for Ingress.
+  Enable with .Values.gcp.backendConfig.enabled.
+  All health check tuning is sourced from .Values.gcp.gatewayapi.healthCheckPolicy for DRY config.
+*/}}
+
+
+{{- if and (eq .Values.profile "gcp") (.Values.gcp.backendConfig.enabled | default false) }}
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: {{ .Values.appName }}-backendconfig
+  namespace: {{ .Values.namespace }}
+spec:
+  healthCheck:
+    checkIntervalSec: {{ .Values.gcp.gatewayapi.healthCheckPolicy.intervalSeconds | default 30 }}
+    timeoutSec: {{ .Values.gcp.gatewayapi.healthCheckPolicy.timeoutSeconds | default 5 }}
+    healthyThreshold: 1
+    unhealthyThreshold: {{ .Values.gcp.gatewayapi.healthCheckPolicy.unhealthyThreshold | default 5 }}
+    port: {{ .Values.gcp.gatewayapi.healthCheckPolicy.port | default 80 }}
+    type: {{ .Values.gcp.gatewayapi.healthCheckPolicy.type | default "HTTP" }}
+    requestPath: {{ .Values.gcp.gatewayapi.healthCheckPolicy.path | default "/healthz" }}
+{{- end }}

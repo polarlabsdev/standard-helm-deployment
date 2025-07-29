@@ -1,0 +1,30 @@
+{{- /*
+  HealthCheckPolicy: GKE Gateway API custom health checks for Service backends.
+  Enable with .Values.gcp.gatewayapi.healthCheckPolicy.enabled.
+  All health check tuning is sourced from this block and used by BackendConfig as well.
+  - type, port, path, intervals, thresholds: All configurable.
+*/}}
+
+
+{{- if and (eq .Values.profile "gcp") (.Values.gcp.gatewayapi.enabled | default false) }}
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: {{ .Values.appName }}-healthcheckpolicy
+  namespace: {{ .Values.namespace }}
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: {{ .Values.appName }}-service
+  default:
+    config:
+      type: {{ .Values.gcp.gatewayapi.healthCheckPolicy.type | default "HTTP" }}
+      httpHealthCheck:
+        port: {{ .Values.gcp.gatewayapi.healthCheckPolicy.port | default 80 }}
+        requestPath: {{ .Values.gcp.gatewayapi.healthCheckPolicy.path | default "/healthz" }}
+      checkIntervalSec: {{ .Values.gcp.gatewayapi.healthCheckPolicy.intervalSeconds | default 30 }}
+      timeoutSec: {{ .Values.gcp.gatewayapi.healthCheckPolicy.timeoutSeconds | default 5 }}
+      healthyThreshold: {{ .Values.gcp.gatewayapi.healthCheckPolicy.healthyThreshold | default 1 }}
+      unhealthyThreshold: {{ .Values.gcp.gatewayapi.healthCheckPolicy.unhealthyThreshold | default 3 }}
+{{- end }}

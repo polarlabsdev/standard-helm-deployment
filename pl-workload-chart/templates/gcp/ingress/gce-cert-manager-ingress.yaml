@@ -1,4 +1,14 @@
-{{- if eq .Values.profile "gcp" }}
+{{- /*
+  Ingress: GCP HTTP(S) Load Balancer with cert-manager integration.
+  Enable with .Values.gcp.ingress.enabled.
+  - hosts/ingressPaths: Define domains and routing paths
+  - tlsSecretName: TLS cert for HTTPS
+  - clusterIssuerName: cert-manager ClusterIssuer for certs
+  - defaultBackend: Optional fallback service
+*/}}
+
+
+{{- if and (eq .Values.profile "gcp") (.Values.gcp.ingress.enabled | default false) }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

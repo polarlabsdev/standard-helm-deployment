@@ -1,0 +1,24 @@
+{{- /*
+  ReferenceGrant: Allows cross-namespace references for Gateway API (e.g., Gateway to ServiceAccount).
+  Enable with .Values.gcp.gatewayapi.referenceGrant.enabled.
+  - from*: Source resource (group, kind, namespace)
+  - to*: Target resource (group, kind, name)
+*/}}
+
+
+{{- if and (eq .Values.profile "gcp") (.Values.gcp.gatewayapi.enabled | default false) }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: ReferenceGrant
+metadata:
+  name: {{ .Values.appName }}-referencegrant
+  namespace: {{ .Values.namespace }}
+spec:
+  from:
+    - group: {{ .Values.gcp.gatewayapi.referenceGrant.fromGroup | default "gateway.networking.k8s.io" }}
+      kind: {{ .Values.gcp.gatewayapi.referenceGrant.fromKind | default "HTTPRoute" }}
+      namespace: {{ .Values.gcp.gatewayapi.referenceGrant.fromNamespace | default .Values.namespace }}
+  to:
+    - group: {{ .Values.gcp.gatewayapi.referenceGrant.toGroup | default "" }}
+      kind: {{ .Values.gcp.gatewayapi.referenceGrant.toKind | default "Service" }}
+      name: {{ .Values.gcp.gatewayapi.referenceGrant.toName }}
+{{- end }}
