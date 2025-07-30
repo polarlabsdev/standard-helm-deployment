@@ -1,3 +1,4 @@
+{{- if or (and (eq .Values.profile "gcp") (.Values.gcp.ingress.enabled | default false)) (and (eq .Values.profile "generic") (.Values.ingressClassName | default "" | ne "")) }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -12,3 +13,4 @@ spec:
     {{- range .Values.hosts }}
     - {{ .domainName }}
     {{- end }}
+{{- end }}
