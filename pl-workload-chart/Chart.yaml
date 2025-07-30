@@ -4,4 +4,4 @@ description: A flexible, cloud-agnostic workload deployment chart for PolarLabs.
 
 type: application
 appVersion: "1.2.0"
-version: 3.2.1
+version: 3.2.2
