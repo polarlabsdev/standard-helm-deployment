@@ -17,6 +17,8 @@ spec:
   parentRefs:
     - name: {{ .Values.gcp.gatewayapi.httproute.gatewayName }}
       namespace: {{ .Values.namespace }}
+  hostnames:
+    - {{ .Values.gcp.gatewayapi.httproute.hostname }}
   rules:
     - matches:
         - path:

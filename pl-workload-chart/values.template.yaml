@@ -84,11 +84,12 @@ gcp:
     # All health check tuning is inherited from gatewayapi.healthCheckPolicy below
 
   gatewayapi:
-    enabled: false
+    enabled: true
     # Gateway API resources for advanced traffic management (Kubernetes Gateway API)
     httproute:
       gatewayName: "gateway"  # Name of Gateway resource to attach this route to
       path: "/"  # URL path to match for routing
+      hostname: "" # Hostname to match for routing
       port: 80    # Service port to forward traffic to
 
 
