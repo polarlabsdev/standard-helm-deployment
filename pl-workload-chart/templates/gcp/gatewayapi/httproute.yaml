@@ -16,7 +16,7 @@ metadata:
 spec:
   parentRefs:
     - name: {{ .Values.gcp.gatewayapi.httproute.gatewayName }}
-      namespace: {{ .Values.namespace }}
+      namespace: {{ .Values.gcp.gatewayapi.httproute.gatewayNamespace | default .Values.namespace }}
   hostnames:
     - {{ .Values.gcp.gatewayapi.httproute.hostname }}
   rules:

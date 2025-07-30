@@ -89,6 +89,7 @@ gcp:
     httproute:
       gatewayName: "gateway"  # Name of Gateway resource to attach this route to
       path: "/"  # URL path to match for routing
+      gatewayNamespace: "" # Namespace of the Gateway resource
       hostname: "" # Hostname to match for routing
       port: 80    # Service port to forward traffic to
 
