@@ -7,7 +7,7 @@
 
 
 {{- if and (eq .Values.profile "gcp") (.Values.gcp.gatewayapi.enabled | default false) }}
-apiVersion: gateway.networking.k8s.io/v1
+apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
 metadata:
   name: {{ .Values.appName }}-referencegrant
