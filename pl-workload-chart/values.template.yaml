@@ -6,6 +6,8 @@ namespace: hello-world
 appName: hello-world
 
 # Deployment
+deployment:
+  enabled: false
 replicas: 2
 imageLocation: hashicorp/http-echo
 registrySecretName: polar-labs-registry
@@ -18,6 +20,7 @@ containerPorts:
 
 # Service configuration
 service:
+  enabled: false
   type: NodePort # Can be ClusterIP, NodePort, LoadBalancer
 
 resources:
@@ -31,10 +34,10 @@ resources:
 envVars:
   TEST: test
 secrets:
-  - name: do-creds
-    type: Opaque
-    data:
-      TEST: test
+  # - name: do-creds
+  #   type: Opaque
+  #   data:
+  #     TEST: test
 
 # Ingress
 clusterIssuerName: letsencrypt-production
@@ -68,7 +71,9 @@ hosts:
 
 # ServiceAccountName is required to pass in the deployment config for both GCP and generic profiles.
 # Also required to create ServiceAccount resource for both GCP and generic profiles.
-serviceAccountName: "hello-world-hahha"
+serviceAccount:
+  enabled: false
+serviceAccountName: "hello-world"
 
 # Optional: GCP-specific
 gcp:

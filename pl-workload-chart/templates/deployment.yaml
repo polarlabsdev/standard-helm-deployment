@@ -1,6 +1,7 @@
 {{- /* Unified deployment for both GCP and generic profiles */}}
 
-{{- if or (eq .Values.profile "gcp") (eq .Values.profile "generic") }}
+{{- if (.Values.deployment.enabled | default false) }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
