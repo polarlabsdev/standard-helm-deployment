@@ -7,6 +7,10 @@ kind: Deployment
 metadata:
   name: {{ .Values.appName }}-deployment
   namespace: {{ .Values.namespace }}
+  {{- if .Values.annotations }}
+  annotations:
+    {{- toYaml .Values.annotations | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     matchLabels:

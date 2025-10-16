@@ -7,10 +7,13 @@ appName: hello-world
 
 # Deployment
 deployment:
-  enabled: false
+  enabled: true
 replicas: 2
 imageLocation: hashicorp/http-echo
 registrySecretName: polar-labs-registry
+annotations:
+  example-annotation: "example-value"
+  example-annotation-2: "example-value-2"
 containerArgs:
   - -text=echo1
 containerPorts:
