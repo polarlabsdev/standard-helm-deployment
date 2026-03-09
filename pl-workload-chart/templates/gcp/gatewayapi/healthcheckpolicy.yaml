@@ -18,13 +18,13 @@ spec:
     kind: Service
     name: {{ .Values.appName }}-service
   default:
+    checkIntervalSec: {{ .Values.gcp.gatewayapi.healthCheckPolicy.intervalSeconds | default 30 }}
+    timeoutSec: {{ .Values.gcp.gatewayapi.healthCheckPolicy.timeoutSeconds | default 5 }}
+    healthyThreshold: {{ .Values.gcp.gatewayapi.healthCheckPolicy.healthyThreshold | default 1 }}
+    unhealthyThreshold: {{ .Values.gcp.gatewayapi.healthCheckPolicy.unhealthyThreshold | default 3 }}
     config:
       type: {{ .Values.gcp.gatewayapi.healthCheckPolicy.type | default "HTTP" }}
       httpHealthCheck:
         port: {{ .Values.gcp.gatewayapi.healthCheckPolicy.port | default 80 }}
         requestPath: {{ .Values.gcp.gatewayapi.healthCheckPolicy.path | default "/healthz" }}
-      checkIntervalSec: {{ .Values.gcp.gatewayapi.healthCheckPolicy.intervalSeconds | default 30 }}
-      timeoutSec: {{ .Values.gcp.gatewayapi.healthCheckPolicy.timeoutSeconds | default 5 }}
-      healthyThreshold: {{ .Values.gcp.gatewayapi.healthCheckPolicy.healthyThreshold | default 1 }}
-      unhealthyThreshold: {{ .Values.gcp.gatewayapi.healthCheckPolicy.unhealthyThreshold | default 3 }}
 {{- end }}
